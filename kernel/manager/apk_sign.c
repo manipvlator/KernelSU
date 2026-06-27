@@ -335,5 +335,25 @@ bool is_manager_apk(char *path)
 	if (check_v2_signature(path, 0x0368, "b9ee6759de4794f954883458b722b97ae6527cb7709a051db9a2348c0eea1e42"))
 		return true;
 
+	// rifsxd/KernelSU-Next
+	if (check_v2_signature(path, 0x3e6, "79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7"))
+		return true;
+
+	// RapliVx/KernelSU
+	if (check_v2_signature(path, 0x384, "a9462b8b98ea1ca7901b0cbdcebfaa35f0aa95e51b01d66e6b6d2c81b97746d8"))
+		return true;
+
+	// Baka-SU/BakaSU
+    if (check_v2_signature(path, 0x377, "d3469712b6214462764a1d8d3e5cbe1d6819a0b629791b9f4101867821f1df64"))
+        return true;
+        
+    // LyraVoid/FinaSU
+	if (check_v2_signature(path, 0x2cc, "2d89b50aaf1db013c2b6738f973f48b62ea21a3a8d7216bfec3521065d448458"))
+		return true;
+		
+	// samakshkambxj/OriginSU
+    if (check_v2_signature(path, 0x51c, "d91ed440459ff575f9bbdb0b294f8d679b1591a37538aafcf1d0073da5dbe968"))
+        return true;
+
 	return false;
 }
