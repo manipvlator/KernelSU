@@ -1,14 +1,6 @@
 name: Publish NPM package
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'js/package.json'
-  pull_request:
-    paths:
-      - '.github/workflows/npm.yml'
   workflow_dispatch:
 
 jobs:
