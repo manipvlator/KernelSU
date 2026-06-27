@@ -13,7 +13,12 @@ static char cached_manager_apk_path[DATA_PATH_LEN];
 	!strncmp(tgt, name, sizeof(name));		\
 })
 #define is_kowsu_apk(tgt) extra_manager_apk(tgt, "com.kowx712.supermanager")
-#define test_extra_pkgs(tgt) is_kowsu_apk(tgt)
+#define is_ksun_apk(tgt) extra_manager_apk(tgt, "com.rifsxd.ksunext")
+#define is_bksu_apk(tgt) extra_manager_apk(tgt, "com.resukisu.resukisu")
+#define is_mambosu_apk(tgt) extra_manager_apk(tgt, "com.rapli.mambosu")
+#define test_extra_pkgs(tgt) \
+        (is_kowsu_apk(tgt) || is_ksun_apk(tgt) || \
+         is_bksu_apk(tgt) || is_mambosu_apk(tgt))
 
 #define SYSTEM_PACKAGES_LIST_PATH "/data/system/packages.list"
 
