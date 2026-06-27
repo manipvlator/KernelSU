@@ -1,62 +1,66 @@
-**English** | [Español](README_ES.md) | [简体中文](README_CN.md) | [繁體中文](README_TW.md) | [日本語](README_JP.md) | [한국어](README_KR.md) | [Polski](README_PL.md) | [Português (Brasil)](README_PT-BR.md) | [Türkçe](README_TR.md) | [Русский](README_RU.md) | [Tiếng Việt](README_VI.md) | [Indonesia](README_ID.md) | [עברית](README_IW.md) | [हिंदी](README_IN.md) | [Italiano](README_IT.md)
+## *KernelSU*
 
-# KernelSU
+<img src="https://kernelsu.org/logo.png" style="width: 96px;" alt="logo">A kernel-based root solution for Android devices.
 
-<img src="https://kernelsu.org/logo.png" style="width: 96px;" alt="logo">
+---
 
-A kernel-based root solution for Android devices.
+## 🔧 KernelSU Integration (Recommended)
 
-[![Latest release](https://img.shields.io/github/v/release/tiann/KernelSU?label=Release&logo=github)](https://github.com/tiann/KernelSU/releases/latest)
-[![Weblate](https://img.shields.io/badge/Localization-Weblate-teal?logo=weblate)](https://hosted.weblate.org/engage/kernelsu)
-[![Channel](https://img.shields.io/badge/Follow-Telegram-blue.svg?logo=telegram)](https://t.me/KernelSU)
-[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-orange.svg?logo=gnu)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-[![GitHub License](https://img.shields.io/github/license/tiann/KernelSU?logo=gnu)](/LICENSE)
+This project uses an enhanced integration method based on
+[Backslashxx/KernelSU](https://github.com/backslashxx/KernelSU).
 
-## Features
+## 🚀 Quick Setup
 
-1. Kernel-based `su` and root access management.
-2. Module system based on [metamodules](https://kernelsu.org/guide/metamodule.html): Pluggable infrastructure for systemless modifications.
-3. [App Profile](https://kernelsu.org/guide/app-profile.html): Lock up the root power in a cage.
+Run this inside your kernel source:
 
-## Compatibility state
+```sh
+curl -LSs "https://raw.githubusercontent.com/manipvlator/KernelSU/refs/heads/main/kernel/setup.sh" | bash -s main
+```
 
-KernelSU officially supports Android GKI 2.0 devices (kernel 5.10+). Older kernels (4.14+) are also supported, but the kernel will need to be built manually.
+This will automatically integrate KernelSU using the syscall method.
 
-With this, WSA, ChromeOS, and container-based Android are all supported.
+[You also need SusFS 2.2.0](https://github.com/JackA1ltman/NonGKI_Kernel_Build_2nd/tree/mainline/Patches/Patch)
+---
 
-Currently, the `arm64-v8a` and `x86_64` architectures are supported.
+✅ Supported Implementations
 
-> [!CAUTION]
-> Recent kernel versions have implemented a breaking change causing KernelSU to fail and potentially trigger a kernel panic on `x86_64`! Check the website for more info!
+- [KSU Official](https://t.me/KernelSU_group/3234)
+- [KernelSU-Next](https://t.me/ksunext_ci)
+- [KowSU](https://t.me/kowsu_build)
+- [MamboSU](https://t.me/WebsArch)
+- [xxKSU](https://github.com/backslashxx/KernelSU/releases)
+- [ReSukiSU](https://t.me/ReSukiSU/194821)
 
-## Usage
+---
 
-- [Installation](https://kernelsu.org/guide/installation.html)
-- [How to build](https://kernelsu.org/guide/how-to-build.html)
-- [Official website](https://kernelsu.org/)
+## ⚙️ Requirements
 
-## Translation
+Before building your kernel:
 
-To help translate KernelSU, we no longer accept translation contributions via Weblate. All translations are now handled using LLMs.
+- Remove all manual hook implementations (to avoid conflicts)
 
-If you would like to add support for a new language, feel free to open a PR. Please note that modifications to existing English and Chinese translations are not accepted.
+- Disable:
+```config
+CONFIG_KPROBES=n
+```
 
-## Discussion
+- Enable:
+```config
+CONFIG_KSU=y
+CONFIG_KSU_TAMPER_SYSCALL_TABLE=y
+CONFIG_KSU_SUSFS=y
+```
 
-- Telegram: [@KernelSU](https://t.me/KernelSU)
+- Optional (for extra features like AVC log spoofing):
+```config
+CONFIG_KSU_EXTRAS=y
+```
 
-## Security
 
-For information on reporting security vulnerabilities in KernelSU, see [SECURITY.md](/SECURITY.md).
+---
 
-## License
+## 📝 Integration Notes
 
-- Files under the `kernel` directory are [GPL-2.0-only](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html).
-- All other parts except the `kernel` directory are [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.html).
-
-## Credits
-
-- [Kernel-Assisted Superuser](https://git.zx2c4.com/kernel-assisted-superuser/about/): The KernelSU idea.
-- [Magisk](https://github.com/topjohnwu/Magisk): The powerful root tool.
-- [genuine](https://github.com/brevent/genuine/): APK v2 signature validation.
-- [Diamorphine](https://github.com/m0nad/Diamorphine): Some rootkit skills.
+- Recommended to use a clean kernel source
+- Do not mix with other hooking methods
+- Always perform a full rebuild after changing configs
