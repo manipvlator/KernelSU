@@ -30,6 +30,18 @@ $(info -- KernelSU-Next version: $(KSU_KSUN_VERSION))
 $(info -- BakaSU tag: $(KSU_BKSU_TAG))
 $(info -- BakaSU version: $(KSU_BKSU_VERSION))
 
+ifeq ($(CONFIG_KSU_KPROBES_KSUD),y)
+KSU_HOOK_TYPE := Kprobes
+else ifeq ($(CONFIG_KSU_TAMPER_SYSCALL_TABLE),y)
+KSU_HOOK_TYPE := Manipulated
+else ifeq ($(CONFIG_KSU_HACK_ARM64_BRANCH_LINK),y)
+KSU_HOOK_TYPE := Manipulated
+else
+KSU_HOOK_TYPE := Manual
+endif
+
+$(info -- KernelSU hook type: $(KSU_HOOK_TYPE))
+
 KSU_PACKAGE_NAME := me.weishu.kernelsu
 KSU_EXPECTED_SIZE := 0x033b
 KSU_EXPECTED_HASH := c371061b19d8c7d7d6133c6a9bafe198fa944e50c1b31c9d8daa8d7f1fc2d2d6
