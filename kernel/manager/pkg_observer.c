@@ -21,6 +21,10 @@
  * reuses code from: https://github.com/tiann/KernelSU/blob/v1.0.5/kernel/core_hook.c#L188
  */
 
+#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+#include <linux/susfs.h>
+#endif // #ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+
 static void *system_dir_inode_ptr = nullptr;
 
 static noinline void ksu_grab_data_system_inode()
@@ -53,6 +57,10 @@ static void ksu_rename_observer_slow(struct dentry *old_dentry, struct dentry *n
 
 	pr_info("renameat: %s -> %s, new path: %s\n", old_dentry->d_iname, new_dentry->d_iname, buf);
 	track_throne(false);
+#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+	// Renew the priority uid bitmap filter
+	susfs_parse_priority_app_strings();
+#endif // #ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
 	return;
 }
 
@@ -102,6 +110,10 @@ static inline void ksu_rename_observer(struct dentry *old_dentry, struct dentry 
 
 	pr_info("renameat: %s -> %s, /data/system d_inode: 0x%lx \n", old_dentry->d_iname, new_dentry->d_iname, system_dir_inode_ptr);
 	track_throne(false);
+#ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
+	// Renew the priority uid bitmap filter
+	susfs_parse_priority_app_strings();
+#endif // #ifdef CONFIG_KSU_SUSFS_PRIORITY_UID_FILTER
 	return;
 
 slow_path:
