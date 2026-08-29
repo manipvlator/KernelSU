@@ -420,6 +420,11 @@ void ksu_set_manager_type(enum ksu_manager_type type)
 	WRITE_ONCE(detected_manager, type);
 }
 
+enum ksu_manager_type ksu_get_manager_type(void)
+{
+	return READ_ONCE(detected_manager);
+}
+
 u32 ksu_get_manager_version(void)
 {
 	switch (READ_ONCE(detected_manager)) {

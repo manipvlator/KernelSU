@@ -17,6 +17,7 @@ enum ksu_manager_type {
 bool is_manager_apk(char *path);
 enum ksu_manager_type ksu_detect_manager_apk(char *path);
 void ksu_set_manager_type(enum ksu_manager_type type);
+enum ksu_manager_type ksu_get_manager_type(void);
 u32 ksu_get_manager_version(void);
 const char *ksu_get_manager_version_tag(void);
 const char *ksu_get_manager_version_full(void);
