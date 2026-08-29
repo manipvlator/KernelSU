@@ -36,6 +36,12 @@ static int do_get_info(void __user *arg)
 #ifndef KSU_NO_PREINIT
 	cmd.flags |= KSU_GET_INFO_FLAG_PREINIT;
 #endif
+#ifdef CONFIG_KSU_HOOK_SUSFS_INLINE
+	cmd.flags |= KSU_GET_INFO_FLAG_HOOK_SUSFS_INLINE;
+#else
+	cmd.flags |= KSU_GET_INFO_FLAG_HOOK_TRACEPOINT;
+#endif
+	cmd.flags |= KSU_GET_INFO_FLAG_HOOK_READY;
 	cmd.features = KSU_FEATURE_MAX;
 	cmd.uapi_version = KERNEL_SU_UAPI_VERSION;
 
@@ -60,6 +66,12 @@ static int do_get_info_legacy(void __user *arg)
 	if (is_manager()) {
 		cmd.flags |= KSU_GET_INFO_FLAG_MANAGER;
 	}
+#ifdef CONFIG_KSU_HOOK_SUSFS_INLINE
+	cmd.flags |= KSU_GET_INFO_FLAG_HOOK_SUSFS_INLINE;
+#else
+	cmd.flags |= KSU_GET_INFO_FLAG_HOOK_TRACEPOINT;
+#endif
+	cmd.flags |= KSU_GET_INFO_FLAG_HOOK_READY;
 	cmd.features = KSU_FEATURE_MAX;
 
 	if (copy_to_user(arg, &cmd, sizeof(cmd))) {
@@ -478,6 +490,47 @@ static int do_manage_mark(void __user *arg)
 	return 0;
 }
 
+static int ksu_copy_to_user(void __user *arg, const void *cmd,
+			    size_t size, const char *name)
+{
+	if (copy_to_user(arg, cmd, size)) {
+		pr_err("%s: copy_to_user failed\n", name);
+		return -EFAULT;
+	}
+
+	return 0;
+}
+
+static const char *ksu_hook_type(void)
+{
+#ifdef CONFIG_KSU_KPROBES_KSUD
+	return "Kprobes";
+#elif defined(CONFIG_KSU_TAMPER_SYSCALL_TABLE) || \
+      defined(CONFIG_KSU_HACK_ARM64_BRANCH_LINK)
+	return "Manipulated";
+#else
+	return "Manual";
+#endif
+}
+
+static int do_get_hook_mode(void __user *arg)
+{
+	struct ksu_get_hook_mode_cmd cmd = { 0 };
+
+	strscpy(cmd.mode, ksu_hook_type(), sizeof(cmd.mode));
+
+	return ksu_copy_to_user(arg, &cmd, sizeof(cmd), "get_hook_mode");
+}
+
+static int do_get_hook_type(void __user *arg)
+{
+	struct ksu_hook_type_cmd cmd = { 0 };
+
+	strscpy(cmd.hook_type, ksu_hook_type(), sizeof(cmd.hook_type));
+
+	return ksu_copy_to_user(arg, &cmd, sizeof(cmd), "get_hook_type");
+}
+
 static int do_get_version_tag(void __user *arg)
 {
 	struct ksu_get_version_tag_cmd cmd = { 0 };
@@ -884,7 +937,9 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
 	{ .cmd = KSU_IOCTL_GET_SULOG_FD, .name = "GET_SULOG_FD", .handler = do_get_sulog_fd, .perm_check = only_root },
 	{ .cmd = KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT, .name = "DISABLE_ESCAPE_TO_ROOT", .handler = do_disable_escape_to_root, .perm_check = only_root, .allow_su_session = true },
 	{ .cmd = KSU_IOCTL_LOOKUP_SYMBOLS, .name = "LOOKUP_SYMBOLS", .handler = do_lookup_symbols, .perm_check = only_root },
+	{ .cmd = KSU_IOCTL_GET_HOOK_MODE, .name = "GET_HOOK_MODE", .handler = do_get_hook_mode, .perm_check = manager_or_root },
 	{ .cmd = KSU_IOCTL_GET_VERSION_TAG, .name = "GET_VERSION_TAG", .handler = do_get_version_tag, .perm_check = manager_or_root },
+	{ .cmd = KSU_IOCTL_HOOK_TYPE, .name = "HOOK_TYPE", .handler = do_get_hook_type, .perm_check = manager_or_root },
 	{ .cmd = KSU_IOCTL_GET_FULL_VERSION, .name = "GET_FULL_VERSION", .handler = do_get_full_version, .perm_check = always_allow },
 	{ .cmd = KSU_IOCTL_GET_FULL_VERSION_FINASU, .name = "GET_FULL_VERSION_FINASU", .handler = do_get_full_version_finasu, .perm_check = always_allow },
 	{ .cmd = KSU_IOCTL_GET_MANAGERS, .name = "GET_MANAGERS", .handler = do_get_managers, .perm_check = manager_or_root },
