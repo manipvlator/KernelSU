@@ -123,8 +123,16 @@ struct ksu_manage_mark_cmd {
 	__u32 result; /* Output: for get operation - mark status or reg_count */
 };
 
+struct ksu_get_hook_mode_cmd {
+	char mode[16];
+};
+
 struct ksu_get_version_tag_cmd {
 	char tag[32];
+};
+
+struct ksu_hook_type_cmd {
+	char hook_type[32];
 };
 
 #define KSU_MARK_GET 1
@@ -178,6 +186,10 @@ struct ksu_get_sulog_fd_cmd {
 #define KSU_IOCTL_SET_INIT_PGRP			_IO('K', 19)
 #define KSU_IOCTL_GET_SULOG_FD			_IOW('K', 20, struct ksu_get_sulog_fd_cmd)
 #define KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT	_IO('K', 21)
+
+/*version and hook */
+#define KSU_IOCTL_GET_HOOK_MODE _IOC(_IOC_READ, 'K', 98, 0)
 #define KSU_IOCTL_GET_VERSION_TAG _IOC(_IOC_READ, 'K', 99, 0)
+#define KSU_IOCTL_HOOK_TYPE _IOC(_IOC_READ, 'K', 101, 0)
 
 #endif
