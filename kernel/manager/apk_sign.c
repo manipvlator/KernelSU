@@ -330,18 +330,20 @@ int get_pkg_from_apk_path(char *pkg, const char *path)
 	return 0;
 }
 
-bool is_manager_apk(char *path)
+static enum ksu_manager_type detected_manager = KSU_MANAGER_UNKNOWN;
+
+enum ksu_manager_type ksu_detect_manager_apk(char *path)
 {
 #ifdef KSU_MANAGER_PACKAGE
 	char pkg[KSU_MAX_PACKAGE_NAME];
 	if (get_pkg_from_apk_path(pkg, path) < 0) {
 		pr_err("Failed to get package name from apk path: %s\n", path);
-		return false;
+		return KSU_MANAGER_UNKNOWN;
 	}
 
 	// pkg is `<real package>`
 	if (strncmp(pkg, KSU_MANAGER_PACKAGE, sizeof(KSU_MANAGER_PACKAGE))) {
-		return false;
+		return KSU_MANAGER_UNKNOWN;
 	}
 #endif
 
@@ -349,28 +351,70 @@ bool is_manager_apk(char *path)
 	char buf[KSU_MAX_PACKAGE_NAME];
 	constexpr char p[] = "me.weishu.kernelsu";
 	if (check_v2_signature(path, 0x363, "4359c171f32543394cbc23ef908c4bb94cad7c8087002ba164c8230948c21549") && 
-		!get_pkg_from_apk_path(buf, path) && !memcmp_inline(buf, p, sizeof(p)))
-		return true;
+		!get_pkg_from_apk_path(buf, path) && !__builtin_memcmp(buf, p, sizeof(p)))
+		return KSU_MANAGER_OTHER;
 
 	// kernelsu official
 	if (check_v2_signature(path, EXPECTED_SIZE, EXPECTED_HASH))
-		return true;
+		return KSU_MANAGER_OTHER;
 
 	// KOWX712/KernelSU
 	if (check_v2_signature(path, 0x375, "484fcba6e6c43b1fb09700633bf2fb4758f13cb0b2f4457b80d075084b26c588"))
-		return true;
+		return KSU_MANAGER_OTHER;
 
 	// rifsxd/KernelSU-Next
 	if (check_v2_signature(path, 0x3e6, "79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7"))
-		return true;
+		return KSU_MANAGER_KSUN;
 
 	// RapliVx/KernelSU
 	if (check_v2_signature(path, 0x384, "a9462b8b98ea1ca7901b0cbdcebfaa35f0aa95e51b01d66e6b6d2c81b97746d8"))
-		return true;
+		return KSU_MANAGER_OTHER;
 
 	// ReSukiSU/ReSukiSU
     if (check_v2_signature(path, 0x377, "d3469712b6214462764a1d8d3e5cbe1d6819a0b629791b9f4101867821f1df64"))
-        return true;
+        return KSU_MANAGER_RESUKISU;
 
-	return false;
+	return KSU_MANAGER_UNKNOWN;
+}
+
+#include "../include/ksu.h"
+
+void ksu_set_manager_type(enum ksu_manager_type type)
+{
+	WRITE_ONCE(detected_manager, type);
+}
+
+u32 ksu_get_manager_version(void)
+{
+	switch (READ_ONCE(detected_manager)) {
+	case KSU_MANAGER_KSUN:
+		return KSU_KSUN_VERSION;
+	case KSU_MANAGER_RESUKISU:
+		return KSU_RESUKISU_VERSION;
+	default:
+		return KERNEL_SU_VERSION;
+	}
+}
+
+const char *ksu_get_manager_version_tag(void)
+{
+	switch (READ_ONCE(detected_manager)) {
+	case KSU_MANAGER_KSUN:
+		return KSU_KSUN_TAG;
+	case KSU_MANAGER_RESUKISU:
+		return KSU_RESUKISU_TAG;
+	default:
+		return KERNEL_SU_VERSION_TAG;
+	}
+}
+
+bool is_manager_apk(char *path)
+{
+	enum ksu_manager_type type = ksu_detect_manager_apk(path);
+
+	if (type == KSU_MANAGER_UNKNOWN)
+		return false;
+
+	ksu_set_manager_type(type);
+	return true;
 }

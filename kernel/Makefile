@@ -12,7 +12,23 @@ $(info -- KDIR: $(KDIR))
 $(info -- MDIR: $(MDIR))
 
 # compliant to last upstream kernel change as of 623eba3
-CFLAGS_ksu.o += -DKSU_VERSION=32651
+KSU_VERSION := 32651
+KSU_VERSION_TAG := v3.3.0
+KSU_KSUN_TAG := v3.4.0
+KSU_RESUKISU_TAG := v4.2.0
+KSU_KSUN_VERSION := $(shell echo $$(($(KSU_VERSION) + 658)))
+KSU_RESUKISU_VERSION := $(shell echo $$(($(KSU_VERSION) + 2521)))
+
+ccflags-y += -DKSU_VERSION=$(KSU_VERSION) -DKSU_VERSION_TAG=\"$(KSU_VERSION_TAG)\" \
+             -DKSU_KSUN_VERSION=$(KSU_KSUN_VERSION) -DKSU_KSUN_TAG=\"$(KSU_KSUN_TAG)\" \
+             -DKSU_RESUKISU_VERSION=$(KSU_RESUKISU_VERSION) -DKSU_RESUKISU_TAG=\"$(KSU_RESUKISU_TAG)\"
+
+$(info -- Other KernelSU tag: $(KSU_VERSION_TAG))
+$(info -- Other KernelSU version: $(KSU_VERSION))
+$(info -- KernelSU-Next tag: $(KSU_KSUN_TAG))
+$(info -- KernelSU-Next version: $(KSU_KSUN_VERSION))
+$(info -- ReSukiSU tag: $(KSU_RESUKISU_TAG))
+$(info -- ReSukiSU version: $(KSU_RESUKISU_VERSION))
 
 ifndef KSU_EXPECTED_SIZE
 KSU_EXPECTED_SIZE := 0x033b
