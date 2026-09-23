@@ -13,7 +13,61 @@ $(info -- KDIR: $(KDIR))
 $(info -- MDIR: $(MDIR))
 
 # compliant to last upstream kernel change as of 02ffbd4
-CFLAGS_ksu.o += -DKSU_VERSION=32725
+# Base version = KernelSU official. Downstream versions are derived from it
+# with an offset, so bumping KSU_VERSION moves every manager together.
+# Change an individual *_OFFSET only if one fork needs a different bump.
+KSU_VERSION := 32731
+KSU_VERSION_TAG := v3.3.1
+KSU_VERSION_FULL := $(KSU_VERSION_TAG)-$(KSU_VERSION)
+
+KSU_KSUN_OFFSET := 659
+KSU_BKSU_OFFSET := 2475
+KSU_ORIGINSU_OFFSET := 2768
+KSU_FINASU_OFFSET := 450
+
+# KernelSU-Next
+KSU_KSUN_VERSION := $(shell echo $$(($(KSU_VERSION) + $(KSU_KSUN_OFFSET))))
+KSU_KSUN_TAG := v3.4.2
+KSU_KSUN_VERSION_FULL := $(KSU_KSUN_TAG)-$(KSU_KSUN_VERSION)
+
+# BakaSU
+KSU_BKSU_VERSION := $(shell echo $$(($(KSU_VERSION) + $(KSU_BKSU_OFFSET))))
+KSU_BKSU_TAG := v4.2.0
+KSU_BKSU_VERSION_FULL := $(KSU_BKSU_TAG)-$(KSU_BKSU_VERSION)-backslashxx
+
+# OriginSU
+KSU_ORIGINSU_VERSION := $(shell echo $$(($(KSU_VERSION) + $(KSU_ORIGINSU_OFFSET))))
+KSU_ORIGINSU_TAG := v4.3.0
+KSU_ORIGINSU_VERSION_FULL := $(KSU_ORIGINSU_TAG)-$(KSU_ORIGINSU_VERSION)-backslashxx
+
+# FinaSU
+KSU_FINASU_VERSION := $(shell echo $$(($(KSU_VERSION) + $(KSU_FINASU_OFFSET))))
+KSU_FINASU_TAG := v1.6.0
+KSU_FINASU_VERSION_FULL := $(KSU_FINASU_TAG)-$(KSU_FINASU_VERSION)
+
+CFLAGS_ksu.o += -DKSU_VERSION=$(KSU_VERSION) -DKSU_VERSION_TAG=\"$(KSU_VERSION_TAG)\" \
+                -DKSU_VERSION_FULL=\"$(KSU_VERSION_FULL)\" \
+                -DKSU_KSUN_VERSION=$(KSU_KSUN_VERSION) -DKSU_KSUN_TAG=\"$(KSU_KSUN_TAG)\" \
+                -DKSU_KSUN_VERSION_FULL=\"$(KSU_KSUN_VERSION_FULL)\" \
+                -DKSU_BKSU_VERSION=$(KSU_BKSU_VERSION) -DKSU_BKSU_TAG=\"$(KSU_BKSU_TAG)\" \
+                -DKSU_BKSU_VERSION_FULL=\"$(KSU_BKSU_VERSION_FULL)\" \
+                -DKSU_ORIGINSU_VERSION=$(KSU_ORIGINSU_VERSION) -DKSU_ORIGINSU_TAG=\"$(KSU_ORIGINSU_TAG)\" \
+                -DKSU_ORIGINSU_VERSION_FULL=\"$(KSU_ORIGINSU_VERSION_FULL)\" \
+                -DKSU_FINASU_VERSION=$(KSU_FINASU_VERSION) -DKSU_FINASU_TAG=\"$(KSU_FINASU_TAG)\" \
+                -DKSU_FINASU_VERSION_FULL=\"$(KSU_FINASU_VERSION_FULL)\"
+
+$(info -- KernelSU tag: $(KSU_VERSION_TAG))
+$(info -- KernelSU version: $(KSU_VERSION))
+$(info -- KernelSU full version: $(KSU_VERSION_FULL))
+$(info -- KernelSU-Next tag: $(KSU_KSUN_TAG))
+$(info -- KernelSU-Next version: $(KSU_KSUN_VERSION))
+$(info -- KernelSU-Next full version: $(KSU_KSUN_VERSION_FULL))
+$(info -- BakaSU tag: $(KSU_BKSU_TAG))
+$(info -- BakaSU version: $(KSU_BKSU_VERSION))
+$(info -- OriginSU tag: $(KSU_ORIGINSU_TAG))
+$(info -- OriginSU version: $(KSU_ORIGINSU_VERSION))
+$(info -- FinaSU tag: $(KSU_FINASU_TAG))
+$(info -- FinaSU version: $(KSU_FINASU_VERSION))
 
 KSU_PACKAGE_NAME := me.weishu.kernelsu
 KSU_EXPECTED_SIZE := 0x033b

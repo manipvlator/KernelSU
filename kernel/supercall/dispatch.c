@@ -1,3 +1,5 @@
+#include "../manager/apk_sign.h"
+
 static int do_grant_root(void __user *arg)
 {
 	int ret;
@@ -19,7 +21,7 @@ static int do_grant_root(void __user *arg)
 
 static int do_get_info(void __user *arg)
 {
-	struct ksu_get_info_cmd cmd = { .version = KERNEL_SU_VERSION, .flags = 0 };
+	struct ksu_get_info_cmd cmd = { .version = ksu_get_manager_version(), .flags = 0 };
 
 #ifdef MODULE
 	cmd.flags |= KSU_GET_INFO_FLAG_LKM;
@@ -53,7 +55,7 @@ static int do_get_info(void __user *arg)
 
 static int do_get_info_legacy(void __user *arg)
 {
-	struct ksu_get_info_legacy_cmd cmd = { .version = KERNEL_SU_VERSION, .flags = 0 };
+	struct ksu_get_info_legacy_cmd cmd = { .version = ksu_get_manager_version(), .flags = 0 };
 
 	if (is_manager()) {
 		cmd.flags |= KSU_GET_INFO_FLAG_MANAGER;
@@ -476,6 +478,33 @@ static int do_manage_mark(void __user *arg)
 	return 0;
 }
 
+static int do_get_version_tag(void __user *arg)
+{
+	struct ksu_get_version_tag_cmd cmd = { 0 };
+
+	strscpy(cmd.tag, ksu_get_manager_version_tag(), sizeof(cmd.tag));
+
+	return ksu_copy_to_user(arg, &cmd, sizeof(cmd), "get_version_tag");
+}
+
+static int do_get_full_version(void __user *arg)
+{
+	struct ksu_get_full_version_cmd cmd = { 0 };
+
+	strscpy(cmd.version_full, ksu_get_manager_version_full(), sizeof(cmd.version_full));
+
+	return ksu_copy_to_user(arg, &cmd, sizeof(cmd), "get_full_version");
+}
+
+static int do_get_full_version_finasu(void __user *arg)
+{
+	struct ksu_get_full_version_cmd_legacy cmd = { 0 };
+
+	strscpy(cmd.version_full, ksu_get_manager_version_full(), sizeof(cmd.version_full));
+
+	return ksu_copy_to_user(arg, &cmd, sizeof(cmd), "get_full_version_finasu");
+}
+
 static int do_nuke_ext4_sysfs(void __user *arg)
 {
 	struct ksu_nuke_ext4_sysfs_cmd cmd;
@@ -819,6 +848,9 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
 	{ .cmd = KSU_IOCTL_GET_SULOG_FD, .name = "GET_SULOG_FD", .handler = do_get_sulog_fd, .perm_check = only_root },
 	{ .cmd = KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT, .name = "DISABLE_ESCAPE_TO_ROOT", .handler = do_disable_escape_to_root, .perm_check = only_root, .allow_su_session = true },
 	{ .cmd = KSU_IOCTL_LOOKUP_SYMBOLS, .name = "LOOKUP_SYMBOLS", .handler = do_lookup_symbols, .perm_check = only_root },
+	{ .cmd = KSU_IOCTL_GET_VERSION_TAG, .name = "GET_VERSION_TAG", .handler = do_get_version_tag, .perm_check = manager_or_root },
+	{ .cmd = KSU_IOCTL_GET_FULL_VERSION, .name = "GET_FULL_VERSION", .handler = do_get_full_version, .perm_check = always_allow },
+	{ .cmd = KSU_IOCTL_GET_FULL_VERSION_FINASU, .name = "GET_FULL_VERSION_FINASU", .handler = do_get_full_version_finasu, .perm_check = always_allow },
 	{ .cmd = 0, .name = NULL, .handler = NULL, .perm_check = NULL } // Sentinel
 };
 
