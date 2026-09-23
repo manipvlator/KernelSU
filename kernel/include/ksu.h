@@ -2,6 +2,7 @@
 #define __KSU_H_KSU
 
 #define KERNEL_SU_VERSION KSU_VERSION
+#define KERNEL_SU_VERSION_TAG KSU_VERSION_TAG
 
 struct cred* ksu_cred;
 
