@@ -20,7 +20,7 @@ static char cached_manager_apk_path[DATA_PATH_LEN];
 #define is_fin_asu_apk(tgt) extra_manager_apk(tgt, "me.yuki.fina")
 #define is_originsu_apk(tgt) extra_manager_apk(tgt, "com.originsu.manager")
 #define test_extra_pkgs(tgt) \
-        (is_kowsu_apk(tgt) || is_midorisu_apk(tgt) || \ 
+        (is_kowsu_apk(tgt) || is_midorisu_apk(tgt) || \
         is_ksun_apk(tgt) || is_bksu_apk(tgt) || \
         is_mambosu_apk(tgt) || is_fin_asu_apk(tgt) || \
         is_originsu_apk(tgt))
