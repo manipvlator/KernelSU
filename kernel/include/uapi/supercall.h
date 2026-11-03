@@ -146,6 +146,17 @@ struct ksu_get_full_version_cmd_legacy {
 	char version_full[64];
 };
 
+struct ksu_manager_entry {
+	__u32 uid;
+	__u8 signature_index;
+} __attribute__((packed));
+
+struct ksu_get_managers_cmd {
+	__u16 count; /* Input / Output: number of managers in array */
+	__u16 total_count; /* Output: total number of managers in requested list */
+	struct ksu_manager_entry managers[]; /* Output: array of active managers */
+} __attribute__((packed));
+
 #define KSU_MARK_GET 1
 #define KSU_MARK_MARK 2
 #define KSU_MARK_UNMARK 3
@@ -216,6 +227,7 @@ struct ksu_lookup_symbols_cmd {
 #define KSU_IOCTL_GET_VERSION_TAG _IOC(_IOC_READ, 'K', 99, 0)
 /* BakaSU/OriginSU/KernelSU-Next downstream ABI */
 #define KSU_IOCTL_GET_FULL_VERSION _IOC(_IOC_READ, 'K', 100, 0)
+#define KSU_IOCTL_GET_MANAGERS _IOC(_IOC_READ | _IOC_WRITE, 'K', 105, 0)
 /* FinaSU downstream ABI */
 #define KSU_IOCTL_GET_FULL_VERSION_FINASU _IOR('K', 29, struct ksu_get_full_version_cmd_legacy)
 

@@ -505,6 +505,42 @@ static int do_get_full_version_finasu(void __user *arg)
 	return ksu_copy_to_user(arg, &cmd, sizeof(cmd), "get_full_version_finasu");
 }
 
+static int do_get_managers(void __user *arg)
+{
+	struct ksu_get_managers_cmd cmd;
+	struct ksu_manager_entry entry;
+	uid_t appid = ksu_get_manager_appid();
+	u16 total, count;
+
+	if (copy_from_user(&cmd, arg, sizeof(cmd))) {
+		pr_err("get_managers: copy_from_user failed\n");
+		return -EFAULT;
+	}
+
+	total = ksu_is_manager_appid_valid() ? 1 : 0;
+	count = cmd.count < total ? cmd.count : total;
+
+	if (count) {
+		entry.uid = (u32)appid;
+		entry.signature_index = 0;
+		if (copy_to_user((void __user *)((char __user *)arg + sizeof(cmd)),
+				 &entry, sizeof(entry))) {
+			pr_err("get_managers: copy_to_user managers failed\n");
+			return -EFAULT;
+		}
+	}
+
+	cmd.count = count;
+	cmd.total_count = total;
+
+	if (copy_to_user(arg, &cmd, sizeof(cmd))) {
+		pr_err("get_managers: copy_to_user failed\n");
+		return -EFAULT;
+	}
+
+	return 0;
+}
+
 static int do_nuke_ext4_sysfs(void __user *arg)
 {
 	struct ksu_nuke_ext4_sysfs_cmd cmd;
@@ -851,6 +887,7 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
 	{ .cmd = KSU_IOCTL_GET_VERSION_TAG, .name = "GET_VERSION_TAG", .handler = do_get_version_tag, .perm_check = manager_or_root },
 	{ .cmd = KSU_IOCTL_GET_FULL_VERSION, .name = "GET_FULL_VERSION", .handler = do_get_full_version, .perm_check = always_allow },
 	{ .cmd = KSU_IOCTL_GET_FULL_VERSION_FINASU, .name = "GET_FULL_VERSION_FINASU", .handler = do_get_full_version_finasu, .perm_check = always_allow },
+	{ .cmd = KSU_IOCTL_GET_MANAGERS, .name = "GET_MANAGERS", .handler = do_get_managers, .perm_check = manager_or_root },
 	{ .cmd = 0, .name = NULL, .handler = NULL, .perm_check = NULL } // Sentinel
 };
 
